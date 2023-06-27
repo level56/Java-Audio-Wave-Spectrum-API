@@ -2,6 +2,7 @@ package io.level56.waveapi.application;
 
 import javafx.scene.paint.Color;
 import io.level56.waveapi.application.components.DynamicCanvas;
+import io.level56.waveapi.application.tools.Colors;
 
 public class WaveFormPane extends DynamicCanvas {
 	

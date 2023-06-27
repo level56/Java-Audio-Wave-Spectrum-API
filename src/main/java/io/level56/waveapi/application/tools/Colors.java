@@ -1,4 +1,4 @@
-package io.level56.waveapi.application;
+package io.level56.waveapi.application.tools;
 
 import javafx.scene.paint.Color;
 

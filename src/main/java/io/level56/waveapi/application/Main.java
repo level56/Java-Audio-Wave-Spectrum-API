@@ -5,6 +5,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import io.level56.waveapi.application.tools.Colors;
 
 public class Main extends Application {
 
