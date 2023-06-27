@@ -1,4 +1,4 @@
-package application;
+package io.level56.waveapi.application;
 
 import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -17,17 +17,17 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import ws.schild.jave.AudioAttributes;
 import ws.schild.jave.Encoder;
 import ws.schild.jave.EncoderException;
-import ws.schild.jave.EncoderProgressListener;
-import ws.schild.jave.EncodingAttributes;
-import ws.schild.jave.MultimediaInfo;
 import ws.schild.jave.MultimediaObject;
+import ws.schild.jave.encode.AudioAttributes;
+import ws.schild.jave.encode.EncodingAttributes;
+import ws.schild.jave.info.MultimediaInfo;
+import ws.schild.jave.progress.EncoderProgressListener;
 
 public class WaveFormService extends Service<Boolean> {
 	
-	private static final double WAVEFORM_HEIGHT_COEFFICIENT = 1.3; // This fits the waveform to the swing node height
+	private static final double WAVEFORM_HEIGHT_COEFFICIENT = 1.3;
 	private static final CopyOption[] options = new CopyOption[]{ COPY_ATTRIBUTES , REPLACE_EXISTING };
 	private float[] resultingWaveform;
 	private int[] wavAmplitudes;
@@ -40,19 +40,11 @@ public class WaveFormService extends Service<Boolean> {
 	private ConvertProgressListener listener = new ConvertProgressListener();
 	private WaveFormJob waveFormJob;
 	
-	/**
-	 * Wave Service type of Job ( not boob job ... )
-	 * 
-	 * @author GOXR3PLUSSTUDIO
-	 *
-	 */
 	public enum WaveFormJob {
 		AMPLITUDES_AND_WAVEFORM, WAVEFORM;
 	}
 	
-	/**
-	 * Constructor.
-	 */
+// ** CONSTRUCTOR
 	public WaveFormService(WaveVisualization waveVisualization) {
 		this.waveVisualization = waveVisualization;
 		
@@ -60,36 +52,23 @@ public class WaveFormService extends Service<Boolean> {
 		setOnFailed(f -> failure());
 		setOnCancelled(c -> failure());
 	}
-	
-	/**
-	 * Start the external Service Thread.
-	 *
-	 * 
-	 */
+
 	public void startService(String fileAbsolutePath , WaveFormJob waveFormJob) {
 		if (waveFormJob == WaveFormJob.WAVEFORM)
 			cancel();
-		
-		//Stop the Serivce
+
 		waveVisualization.stopPainterService();
 		
-		//Check if boob job
 		this.waveFormJob = waveFormJob;
-		
-		//Variables
 		this.fileAbsolutePath = fileAbsolutePath;
-		//this.resultingWaveform = null;
+
 		if (waveFormJob != WaveFormJob.WAVEFORM)
 			this.wavAmplitudes = null;
-		
-		//Go
+
+		// ** go
 		restart();
 	}
 	
-	/**
-	 * Done.
-	 */
-	// Work done
 	public void done() {
 		waveVisualization.setWaveData(resultingWaveform);
 		waveVisualization.startPainterService();
@@ -100,9 +79,6 @@ public class WaveFormService extends Service<Boolean> {
 		deleteTemporaryFiles();
 	}
 	
-	/**
-	 * Delete temporary files
-	 */
 	private void deleteTemporaryFiles() {
 		if (temp1 != null && temp2 != null) {
 			temp1.delete();
@@ -118,7 +94,6 @@ public class WaveFormService extends Service<Boolean> {
 			protected Boolean call() throws Exception {
 				
 				try {
-					
 					//Calculate 
 					if (waveFormJob == WaveFormJob.AMPLITUDES_AND_WAVEFORM) { //AMPLITUDES_AND_AMPLITUDES
 						System.out.println("AMPLITUDES_AND_AMPLITUDES");
@@ -203,7 +178,7 @@ public class WaveFormService extends Service<Boolean> {
 					
 					//Set encoding attributes
 					EncodingAttributes attributes = new EncodingAttributes();
-					attributes.setFormat("wav");
+					attributes.setOutputFormat("wav");
 					attributes.setAudioAttributes(audio);
 					
 					//Encode

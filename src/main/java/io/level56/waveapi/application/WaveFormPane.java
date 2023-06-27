@@ -1,13 +1,9 @@
-package application;
+package io.level56.waveapi.application;
 
 import javafx.scene.paint.Color;
+import io.level56.waveapi.application.components.DynamicCanvas;
 
-/**
- * Swing panel paints the waveform of a track.
- *
- * @author GOXR3PLUS STUDIO
- */
-public class WaveFormPane extends ResizableCanvas {
+public class WaveFormPane extends DynamicCanvas {
 	
 	private final float[] defaultWave;
 	private float[] waveData;
@@ -15,42 +11,34 @@ public class WaveFormPane extends ResizableCanvas {
 	private Color foregroundColor;
 	private Color transparentForeground;
 	private Color mouseXColor = Color.rgb(255, 255, 255, 0.7);
-	int width;
+	public int width;
 	int height;
 	private int timerXPosition = 0;
 	private int mouseXPosition = -1;
 	private WaveVisualization waveVisualization;
+	Color timerColor = Colors.green;
+	Color pastColor = Colors.greenDarkTransparent;
 	
-	/**
-	 * Constructor
-	 * 
-	 * @param width
-	 * @param height
-	 */
-	public WaveFormPane(int width, int height) {
+// ** CONSTRUCTOR
+	public WaveFormPane(int width, int height, Color bg, Color fg) {
+
 		defaultWave = new float[width];
+
 		this.width = width;
 		this.height = height;
 		this.setWidth(width);
 		this.setHeight(height);
-		//this.maxWidth(width);
-		//this.maxHeight(height);
 		
-		//Create the default Wave
+		// ** default wave
 		for (int i = 0; i < width; i++)
 			defaultWave[i] = 0.28802148f;
 		waveData = defaultWave;
 		
-		backgroundColor = Color.web("#252525");
-		setForeground(Color.ORANGE);
+		setBackground(bg);
+		setForeground(fg);
 		
 	}
 	
-	/**
-	 * Set the WaveData
-	 * 
-	 * @param waveData
-	 */
 	public void setWaveData(float[] waveData) {
 		this.waveData = waveData;
 	}
@@ -60,7 +48,7 @@ public class WaveFormPane extends ResizableCanvas {
 		transparentForeground = Color.rgb((int) ( foregroundColor.getRed() * 255 ), (int) ( foregroundColor.getGreen() * 255 ), (int) ( foregroundColor.getBlue() * 255 ), 0.3);
 	}
 	
-	public void setBackgroundColor(Color color) {
+	public void setBackground(Color color) {
 		this.backgroundColor = color;
 	}
 	
@@ -76,31 +64,26 @@ public class WaveFormPane extends ResizableCanvas {
 		this.mouseXPosition = mouseXPosition;
 	}
 	
-	/**
-	 * Clear the waveform
-	 */
+
 	public void clear() {
 		waveData = defaultWave;
 		
-		//Draw a Background Rectangle
+		// ** background
 		gc.setFill(backgroundColor);
 		gc.fillRect(0, 0, width, height);
 		
-		//Paint a line
+		// ** line
 		gc.setStroke(foregroundColor);
 		gc.strokeLine(0, height / 2, width, height / 2);
 	}
 	
-	/**
-	 * Paint the WaveForm
-	 */
 	public void paintWaveForm() {
 		
-		//Draw a Background Rectangle
+		// ** background
 		gc.setFill(backgroundColor);
 		gc.fillRect(0, 0, width, height);
 		
-		//Draw the waveform
+		/// ** waveform
 		gc.setStroke(foregroundColor);
 		if (waveData != null)
 			for (int i = 0; i < waveData.length; i++) {
@@ -114,15 +97,15 @@ public class WaveFormPane extends ResizableCanvas {
 				gc.strokeLine(i, y1, i, y2);
 			}
 		
-		//Draw a semi transparent Rectangle
-		gc.setFill(transparentForeground);
+		// ** draw past region
+		gc.setFill(pastColor);
 		gc.fillRect(0, 0, timerXPosition, height);
 		
-		//Draw an horizontal line
-		gc.setFill(Color.WHITE);
-		gc.fillOval(timerXPosition, 0, 1, height);
+		// ** draw timer line
+		gc.setFill(timerColor);
+		gc.fillRect(timerXPosition, 0, 1, height);
 		
-		//Draw an horizontal line
+		// ** draw mouse line
 		if (mouseXPosition != -1) {
 			gc.setFill(mouseXColor);
 			gc.fillRect(mouseXPosition, 0, 3, height);

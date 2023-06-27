@@ -1,74 +1,59 @@
-/*
- * 
- */
-package application;
+package io.level56.waveapi.application;
 
-import application.WaveFormService.WaveFormJob;
+import io.level56.waveapi.application.WaveFormService.WaveFormJob;
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.paint.Color;
 
-/**
- * The Class Visualizer.
- *
- * @author GOXR3PLUS
- */
 public class WaveVisualization extends WaveFormPane {
 	
-	/*** This Service is constantly repainting the wave */
-	private final PaintService animationService;
-	
-	/*** This Service is creating the wave data for the painter */
-	private final WaveFormService waveService;
-	
+	private final PaintService animationService; // ** repaint
+	private final WaveFormService waveService; // ** wave data
 	private boolean recalculateWaveData;
 	
-	/**
-	 * Constructor
-	 * 
-	 * @param width
-	 * @param height
-	 */
-	public WaveVisualization(int width, int height) {
-		super(width, height);
+// ** CONSTRUCTOR
+// region constructor
+	public WaveVisualization(int width, int height, Color bg, Color fg) {
+		super(width, height, bg, fg);
 		super.setWaveVisualization(this);
 		waveService = new WaveFormService(this);
 		animationService = new PaintService();
 		
-		// ----------
+		// ** WIDTH
+		// region width
 		widthProperty().addListener((observable , oldValue , newValue) -> {
-			//System.out.println("New Visualizer Width is:" + newValue);
-			
-			// Canvas Width
+
+			// ** canvas width
 			this.width = Math.round(newValue.floatValue());
 			
-			//Draw single line :)
+			// ** draw line
 			recalculateWaveData = true;
 			clear();
 			
 		});
-		// -------------
+		// endregion
+
+		// ** HEIGHT
+		// region height
 		heightProperty().addListener((observable , oldValue , newValue) -> {
-			//System.out.println("New Visualizer Height is:" + newValue);
 			
-			// Canvas Height
+			// ** canvas height
 			this.height = Math.round(newValue.floatValue());
 			
-			//Draw single line :)
+			// ** draw line
 			recalculateWaveData = true;
 			clear();
 		});
+		// endregion
 		
-		//Tricky mouse events
+		// ** MOUSE EVENTS
 		setOnMouseMoved(m -> this.setMouseXPosition((int) m.getX()));
 		setOnMouseDragged(m -> this.setMouseXPosition((int) m.getX()));
 		setOnMouseExited(m -> this.setMouseXPosition(-1));
 		
 	}
-	//--------------------------------------------------------------------------------------//
-	
-	/**
-	 * @return the animationService
-	 */
+	// endregion
+
 	public PaintService getAnimationService() {
 		return animationService;
 	}
@@ -77,56 +62,31 @@ public class WaveVisualization extends WaveFormPane {
 		return waveService;
 	}
 	
-	//--------------------------------------------------------------------------------------//
-	
-	/**
-	 * Stars the wave visualiser painter
-	 */
+// ** METHODS
+// region methods
 	public void startPainterService() {
 		animationService.start();
 	}
 	
-	/**
-	 * Stops the wave visualiser painter
-	 */
 	public void stopPainterService() {
 		animationService.stop();
 		clear();
 	}
-	
-	/**
-	 * @return True if AnimationTimer of Visualiser is Running
-	 */
+
 	public boolean isPainterServiceRunning() {
 		return animationService.isRunning();
 	}
+	// endregion
 	
-	/*-----------------------------------------------------------------------
-	 * 
-	 * -----------------------------------------------------------------------
-	 * 
-	 * 
-	 * 							      Paint Service
-	 * 
-	 * -----------------------------------------------------------------------
-	 * 
-	 * -----------------------------------------------------------------------
-	 */
-	/**
-	 * This Service is updating the visualizer.
-	 *
-	 * @author GOXR3PLUS
-	 */
+// ** PAINT SERVICE
+// region paint service
 	public class PaintService extends AnimationTimer {
-		
-		/*** When this property is <b>true</b> the AnimationTimer is running */
+
 		private volatile SimpleBooleanProperty running = new SimpleBooleanProperty(false);
-		
 		private long previousNanos = 0;
 		
 		@Override
 		public void start() {
-			// Values must be >0
 			if (width <= 0 || height <= 0)
 				width = height = 1;
 			
@@ -140,25 +100,16 @@ public class WaveVisualization extends WaveFormPane {
 		
 		@Override
 		public void handle(long nanos) {
-			//System.out.println("Running...")
-			
-			//Every 300 millis update
 			if (nanos >= previousNanos + 100000 * 1000) { //
 				previousNanos = nanos;
 				setTimerXPosition(getTimerXPosition() + 1);
 			}
 			
-			//If resulting wave is not calculated
 			if (getWaveService().getResultingWaveform() == null || recalculateWaveData) {
-				
-				//Start the Service
 				getWaveService().startService(getWaveService().getFileAbsolutePath(), WaveFormJob.WAVEFORM);
 				recalculateWaveData = false;
-				
 				return;
-			}
-			
-			//Paint			
+			}	
 			paintWaveForm();
 		}
 		
@@ -168,20 +119,15 @@ public class WaveVisualization extends WaveFormPane {
 			running.set(false);
 		}
 		
-		/**
-		 * @return True if AnimationTimer is running
-		 */
 		public boolean isRunning() {
 			return running.get();
 		}
 		
-		/**
-		 * @return Running Property
-		 */
 		public SimpleBooleanProperty runningProperty() {
 			return running;
 		}
 		
 	}
+	// endregion
 	
 }
